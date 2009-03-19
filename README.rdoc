@@ -1,0 +1,60 @@
+= Spackle
+
+== What is this?
+
+Spackle is designed to make implementing ESI easy to do within Rails.
+
+Here's the flow:
+
+=== Controller
+
+You would declare your ESI from the controller just like a normal method. 
+
+==== Example 
+
+    esi(:user_bar, :path => ":test/$(HTTP_COOKIE{esi-cookie})", :binds => [:esi_cookie]) do |esi_params|
+      render :text => "hey! --> #{params.inspect}"
+    end
+
+If you have any ESI variables (which start with a $), you have to bind them to your params. The :binds parameter
+takes an array of symbols for each parameter present in your path.
+
+=== View
+
+Within your view, you would create your ESI include by using he esi_include method.
+
+==== Example 
+
+    <%=esi_include(:user_bar, :test => "testing") %>
+
+If your ESI path includes and variables (that start with a :), you will need to supply values to them. You can do this
+by passing in the value of the variable as an option after the esi name you're including.
+
+As well, you can pass in a string, and that will be interpreted literally within the include
+
+    <%=esi_include("http://www.slashdot.org/") %>
+
+Also within the view, for more complicated ESI features such as try and attempt, you can use esi_* methods to support these.
+
+==== Example 
+
+    <% esi_try do %>
+      <% esi_attempt do %>
+        <%=esi_include(:user_bar, :test => "testing") %>
+      <% end %>
+    <% end %>
+    
+Or, alternately, this can be more succinctly expressed as:
+
+    <% esi_try do %>
+      <%=esi_attempt(:user_bar, :test => "testing") %>
+    <% end %>
+
+If you need to specify an alt and src for the include, these attributes can be passed within an include block
+
+    <% esi_include do %>
+      <%=esi_src(:user_bar, 'testing') %>
+      <%=esi_alt("http://www.slashdot.org/") %>
+    <% end %>
+    
+    
